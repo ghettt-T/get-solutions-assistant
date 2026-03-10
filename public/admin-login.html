@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(99, 213, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(91, 124, 255, 0.15), transparent 35%),
+        linear-gradient(135deg, #07111f, #0b1730 50%, #10192a);
+      color: white;
+      padding: 20px;
+    }
+
+    .card {
+      width: min(420px, 92%);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    }
+
+    .eyebrow {
+      color: #63d5ff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin: 0 0 8px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+    }
+
+    p {
+      color: #9fb0c5;
+      line-height: 1.6;
+      margin: 0 0 16px;
+    }
+
+    .input-wrap {
+      margin-top: 16px;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: white;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input::placeholder {
+      color: #9fb0c5;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      color: #dbe8f7;
+      font-size: 14px;
+    }
+
+    .toggle-row input {
+      width: auto;
+      margin: 0;
+      accent-color: #63d5ff;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #63d5ff, #5b7cff);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .error {
+      margin-top: 12px;
+      color: #fca5a5;
+      font-size: 14px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p class="eyebrow">PRIVATE ACCESS</p>
+    <h1>Admin Login</h1>
+    <p>Enter your admin password to open the lead dashboard.</p>
+
+    <form id="adminLoginForm">
+      <div class="input-wrap">
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Enter admin password"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <label class="toggle-row">
+        <input type="checkbox" id="showPasswordToggle" />
+        <span>Show password</span>
+      </label>
+
+      <button type="submit">Enter Dashboard</button>
+      <div class="error" id="loginError"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("adminLoginForm");
+    const passwordInput = document.getElementById("adminPassword");
+    const showPasswordToggle = document.getElementById("showPasswordToggle");
+    const errorEl = document.getElementById("loginError");
+
+    showPasswordToggle.addEventListener("change", function () {
+      passwordInput.type = this.checked ? "text" : "password";
+    });
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const password = passwordInput.value.trim();
+
+      if (!password) {
+        errorEl.textContent = "Password is required.";
+        return;
+      }
+
+      errorEl.textContent = "";
+
+      try {
+        const response = await fetch("/api/admin-auth-check", {
+          headers: {
+            "x-admin-password": password
+          }
+        });
+
+        if (!response.ok) {
+          errorEl.textContent = "Incorrect password.";
+          return;
+        }
+
+        document.cookie =
+          "admin_password=" + encodeURIComponent(password) + "; path=/";
+
+        window.location.href =
+          "/admin?password=" + encodeURIComponent(password);
+      } catch (error) {
+        errorEl.textContent = "Unable to verify password.";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Solutions AI - Lead Dashboard</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <header class="admin-header">
+      <div>
+        <p class="eyebrow">PRIVATE DASHBOARD</p>
+        <h1>Lead Intelligence Dashboard</h1>
+        <p class="subtitle">Live lead view with heat tags, timelines, summaries, and next actions.</p>
+      </div>
+
+      <div class="admin-header-actions">
+        <a class="back-link" href="/">Back to Site</a>
+        <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Leads</div>
+        <div class="stat-value" id="totalLeads">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hot Leads</div>
+        <div class="stat-value" id="hotLeads">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Demo Ready</div>
+        <div class="stat-value" id="demoReadyLeads">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">New Leads</div>
+        <div class="stat-value" id="newLeads">0</div>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="lead-list-panel">
+        <div class="panel-header">
+          <h2>Saved Leads</h2>
+          <div class="live-dot-wrap">
+            <span class="live-dot"></span>
+            <span>Live</span>
+          </div>
+        </div>
+        <div id="leadList" class="lead-list"></div>
+      </div>
+
+      <div class="lead-detail-panel">
+        <div class="panel-header">
+          <h2>Lead Details</h2>
+        </div>
+        <div id="leadDetail" class="lead-detail empty-state">
+          Select a lead to view details.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="liveNotification" class="live-notification hidden"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Get Solutions AI</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+<div id="cursorGlow"></div>
+
+
+<header class="main-header">
+
+<div class="logo">
+Get Solutions AI
+</div>
+
+<nav class="main-nav">
+
+<a href="#features">Features</a>
+<a href="#assistant">AI Assistant</a>
+<a href="#contact">Contact</a>
+
+</nav>
+
+</header>
+
+
+
+<section class="hero">
+
+<h1>
+
+Your <span id="typewriterText"></span>
+
+</h1>
+
+<p class="hero-sub">
+
+AI assistants that capture leads, automate follow-up, and help businesses grow their online presence.
+
+</p>
+
+<div class="hero-stats">
+
+<div class="stat">
+<div class="stat-number" data-target="24">0</div>
+<div class="stat-label">Hour Availability</div>
+</div>
+
+<div class="stat">
+<div class="stat-number" data-target="100">0</div>
+<div class="stat-label">Lead Response</div>
+</div>
+
+<div class="stat">
+<div class="stat-number" data-target="10">0</div>
+<div class="stat-label">Faster Conversion</div>
+</div>
+
+</div>
+
+</section>
+
+
+
+<section id="features" class="features">
+
+<div class="feature-grid">
+
+<div class="feature-card tilt-card">
+
+<h3>AI Lead Capture</h3>
+
+<p>
+Your AI assistant talks with visitors, answers questions, and collects lead information automatically.
+</p>
+
+</div>
+
+
+<div class="feature-card tilt-card">
+
+<h3>Automated Follow Up</h3>
+
+<p>
+Automatically respond to inquiries and follow up with potential clients without missing opportunities.
+</p>
+
+</div>
+
+
+<div class="feature-card tilt-card">
+
+<h3>Growth Automation</h3>
+
+<p>
+Use automation to improve response speed, increase inquiries, and grow your online presence.
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<section id="assistant" class="assistant-panel">
+
+<h2>Try the AI Assistant</h2>
+
+<p class="assistant-description">
+Ask questions about automation, AI assistants, lead generation, or how businesses can grow with AI systems.
+</p>
+
+
+<div class="assistant-container">
+
+<div id="chatWindow" class="chat-window">
+
+<div class="message bot">
+
+<div class="message-avatar">AI</div>
+
+<div class="message-bubble" id="welcomeMessage">
+Loading assistant...
+</div>
+
+</div>
+
+</div>
+
+
+<div id="quickActions" class="quick-actions"></div>
+
+
+<form id="chatInputForm" class="chat-input-form">
+
+<input
+id="chatInput"
+type="text"
+placeholder="Ask the AI assistant..."
+autocomplete="off"
+/>
+
+<button type="submit">Send</button>
+
+</form>
+
+</div>
+
+</section>
+
+
+
+<section id="contact" class="contact-section">
+
+<h2>Request Information</h2>
+
+<p class="contact-description">
+
+Fill out the form and our system will follow up with you.
+
+</p>
+
+
+<form id="leadForm" class="lead-form">
+
+<div class="form-row">
+
+<input
+type="text"
+id="fullName"
+placeholder="Full Name"
+/>
+
+<input
+type="text"
+id="businessName"
+placeholder="Business Name"
+/>
+
+</div>
+
+
+<div class="form-row">
+
+<input
+type="text"
+id="businessType"
+placeholder="Business Type"
+/>
+
+<input
+type="text"
+id="helpType"
+placeholder="What do you need help with?"
+/>
+
+</div>
+
+
+<div class="form-row">
+
+<input
+type="email"
+id="email"
+placeholder="Email"
+/>
+
+<input
+type="text"
+id="phone"
+placeholder="Phone"
+/>
+
+</div>
+
+
+<textarea
+id="message"
+placeholder="Tell us more about your business or what you'd like to improve..."
+></textarea>
+
+
+<div class="demo-row">
+
+<label>
+
+<input type="checkbox" id="wantsDemo">
+
+Request Demo
+
+</label>
+
+</div>
+
+
+<button type="submit" class="submit-btn">
+
+Submit Inquiry
+
+</button>
+
+
+<div id="statusMessage" class="status-message"></div>
+
+</form>
+
+</section>
+
+
+
+<footer class="site-footer">
+
+<div class="footer-inner">
+
+<p>© 2026 Get Solutions AI</p>
+
+<a href="/admin" class="admin-link">Admin</a>
+
+</div>
+
+</footer>
+
+
+
+<button id="chatBubbleBtn" class="chat-bubble">
+
+AI
+
+</button>
+
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
