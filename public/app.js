@@ -296,7 +296,7 @@ function normalizePhoneNumber(phone) {
 
   if (digits.length === 10) return `+1${digits}`;
   if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
-  if (String(phone).startsWith("+")) return phone;
+  if (String(phone).startsWith("+")) return String(phone);
 
   return "";
 }
@@ -581,7 +581,7 @@ function getLeadPayloadFromContext() {
     fullName:
       salesContext.fullName ||
       document.getElementById("fullName")?.value.trim() ||
-      "Website Visitor",
+      "",
     businessName:
       salesContext.businessName ||
       document.getElementById("businessName")?.value.trim() ||
@@ -591,9 +591,9 @@ function getLeadPayloadFromContext() {
       document.getElementById("businessType")?.value.trim() ||
       "",
     email:
-      salesContext.email ||
-      document.getElementById("email")?.value.trim() ||
-      "",
+      (salesContext.email ||
+        document.getElementById("email")?.value.trim() ||
+        "").trim(),
     phone:
       salesContext.phone ||
       normalizePhoneNumber(document.getElementById("phone")?.value.trim() || ""),
@@ -638,7 +638,15 @@ async function autoSubmitLeadFromChat() {
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const text = await response.text();
+    let result = {};
+
+    try {
+      result = JSON.parse(text);
+    } catch (error) {
+      result = { message: text || "Unexpected server response." };
+    }
+
     removeThinkingIndicator(thinking);
 
     if (!response.ok) {
@@ -649,7 +657,6 @@ async function autoSubmitLeadFromChat() {
       "Perfect — I’ve collected your details and passed them along. We’ll follow up with you shortly.";
 
     appendMessage(successReply, "bot", true);
-
     conversationHistory.push({
       role: "assistant",
       content: successReply
@@ -661,6 +668,11 @@ async function autoSubmitLeadFromChat() {
     removeThinkingIndicator(thinking);
     leadAlreadySubmitted = false;
     console.error("Auto submit error:", error);
+
+    const statusMessage = document.getElementById("statusMessage");
+    if (statusMessage) {
+      statusMessage.textContent = error.message || "Submission failed.";
+    }
   }
 }
 
@@ -731,7 +743,7 @@ function getFormPayload() {
     fullName: document.getElementById("fullName")?.value.trim() || "",
     businessName: document.getElementById("businessName")?.value.trim() || "",
     businessType: document.getElementById("businessType")?.value.trim() || "",
-    email: document.getElementById("email")?.value.trim() || "",
+    email: (document.getElementById("email")?.value.trim() || "").trim(),
     phone: normalizePhoneNumber(document.getElementById("phone")?.value.trim() || ""),
     helpType: document.getElementById("helpType")?.value.trim() || "",
     message: document.getElementById("message")?.value.trim() || "",
@@ -752,43 +764,38 @@ function getFormPayload() {
   return payload;
 }
 
-function validateLeadForm(payload) {
-  if (!payload.fullName) return "Full name is required.";
-  if (!payload.businessType) return "Business type is required.";
-  if (!payload.email) return "Email address is required.";
-  return null;
-}
-
 function setupLeadForm() {
   const leadForm = document.getElementById("leadForm");
-  if (!leadForm) return;
+  const statusMessage = document.getElementById("statusMessage");
+  if (!leadForm || !statusMessage) return;
 
   leadForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const statusMessage = document.getElementById("statusMessage");
     const payload = getFormPayload();
 
-    const validationError = validateLeadForm(payload);
-    if (validationError) {
-      statusMessage.textContent = validationError;
+    if (!payload.fullName) {
+      statusMessage.textContent = "Please enter your name.";
       return;
     }
 
+    if (!payload.businessType) {
+      statusMessage.textContent = "Please enter your business type.";
+      return;
+    }
+
+    if (!payload.email) {
+      statusMessage.textContent = "Please enter your email.";
+      return;
+    }
+
+    if (!String(payload.email).includes("@")) {
+      statusMessage.textContent = "Please enter a valid email address.";
+      return;
+    }
+
+    statusMessage.textContent = "Submitting form...";
     leadAlreadySubmitted = true;
-    statusMessage.textContent = "Submitting your inquiry...";
-
-    appendMessage(
-      `My name is ${payload.fullName} and I need help with ${payload.helpType || "my business automation"}.`,
-      "user"
-    );
-
-    conversationHistory.push({
-      role: "user",
-      content: `Lead form submitted. Name: ${payload.fullName}. Business name: ${payload.businessName}. Business type: ${payload.businessType}. Help type: ${payload.helpType}. Wants demo: ${payload.wantsDemo}.`
-    });
-
-    const thinking = showThinkingIndicator("Submitting your details");
 
     try {
       const response = await fetch("/api/submit-lead", {
@@ -799,44 +806,38 @@ function setupLeadForm() {
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      const text = await response.text();
 
-      removeThinkingIndicator(thinking);
-
-      if (!response.ok) {
-        leadAlreadySubmitted = false;
-        throw new Error(result.message || "Submission failed.");
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (error) {
+        data = { message: text || "Unexpected server response." };
       }
 
-      statusMessage.textContent = "Inquiry sent successfully.";
+      if (!response.ok) {
+        throw new Error(data.message || "Submission failed.");
+      }
 
-      const successReply =
-        "Thanks — your inquiry was received. We’ll follow up with you shortly.";
+      statusMessage.textContent = "Inquiry submitted successfully.";
 
-      appendMessage(successReply, "bot", true);
+      appendMessage(
+        "Thanks! Your information has been received and we will follow up shortly.",
+        "bot",
+        true
+      );
 
       conversationHistory.push({
         role: "assistant",
-        content: successReply
+        content: "Thanks! Your information has been received and we will follow up shortly."
       });
 
       leadForm.reset();
     } catch (error) {
       console.error("Submit error:", error);
-
-      removeThinkingIndicator(thinking);
-
-      statusMessage.textContent = error.message || "Something went wrong.";
-
-      const errorReply =
-        "Something went wrong while submitting your inquiry. Please try again.";
-
-      appendMessage(errorReply, "bot", true);
-
-      conversationHistory.push({
-        role: "assistant",
-        content: errorReply
-      });
+      leadAlreadySubmitted = false;
+      statusMessage.textContent =
+        error.message || "Something went wrong submitting the form.";
     }
   });
 }
@@ -864,11 +865,10 @@ function setupTiltCards() {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
 
-      const rotateX = ((y / rect.height) - 0.5) * -10;
-      const rotateY = ((x / rect.width) - 0.5) * 10;
+      const rotateX = (y / rect.height - 0.5) * -10;
+      const rotateY = (x / rect.width - 0.5) * 10;
 
-      card.style.transform =
-        `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
     });
 
     card.addEventListener("mouseleave", () => {
