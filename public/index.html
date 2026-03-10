@@ -1,282 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Get Solutions AI</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Solutions AI</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
-
 <body>
-
-<div id="cursorGlow"></div>
-
-
-<header class="main-header">
-
-<div class="logo">
-Get Solutions AI
-</div>
-
-<nav class="main-nav">
-
-<a href="#features">Features</a>
-<a href="#assistant">AI Assistant</a>
-<a href="#contact">Contact</a>
-
-</nav>
-
-</header>
-
-
-
-<section class="hero">
-
-<h1>
-
-Your <span id="typewriterText"></span>
-
-</h1>
-
-<p class="hero-sub">
-
-AI assistants that capture leads, automate follow-up, and help businesses grow their online presence.
-
-</p>
-
-<div class="hero-stats">
-
-<div class="stat">
-<div class="stat-number" data-target="24">0</div>
-<div class="stat-label">Hour Availability</div>
-</div>
-
-<div class="stat">
-<div class="stat-number" data-target="100">0</div>
-<div class="stat-label">Lead Response</div>
-</div>
-
-<div class="stat">
-<div class="stat-number" data-target="10">0</div>
-<div class="stat-label">Faster Conversion</div>
-</div>
-
-</div>
-
-</section>
-
-
-
-<section id="features" class="features">
-
-<div class="feature-grid">
-
-<div class="feature-card tilt-card">
-
-<h3>AI Lead Capture</h3>
-
-<p>
-Your AI assistant talks with visitors, answers questions, and collects lead information automatically.
-</p>
-
-</div>
-
-
-<div class="feature-card tilt-card">
-
-<h3>Automated Follow Up</h3>
-
-<p>
-Automatically respond to inquiries and follow up with potential clients without missing opportunities.
-</p>
-
-</div>
-
-
-<div class="feature-card tilt-card">
-
-<h3>Growth Automation</h3>
-
-<p>
-Use automation to improve response speed, increase inquiries, and grow your online presence.
-</p>
-
-</div>
-
-</div>
-
-</section>
-
-
-
-<section id="assistant" class="assistant-panel">
-
-<h2>Try the AI Assistant</h2>
-
-<p class="assistant-description">
-Ask questions about automation, AI assistants, lead generation, or how businesses can grow with AI systems.
-</p>
-
-
-<div class="assistant-container">
-
-<div id="chatWindow" class="chat-window">
-
-<div class="message bot">
-
-<div class="message-avatar">AI</div>
-
-<div class="message-bubble" id="welcomeMessage">
-Loading assistant...
-</div>
-
-</div>
-
-</div>
-
-
-<div id="quickActions" class="quick-actions"></div>
-
-
-<form id="chatInputForm" class="chat-input-form">
-
-<input
-id="chatInput"
-type="text"
-placeholder="Ask the AI assistant..."
-autocomplete="off"
-/>
-
-<button type="submit">Send</button>
-
-</form>
-
-</div>
-
-</section>
-
-
-
-<section id="contact" class="contact-section">
-
-<h2>Request Information</h2>
-
-<p class="contact-description">
-
-Fill out the form and our system will follow up with you.
-
-</p>
-
-
-<form id="leadForm" class="lead-form">
-
-<div class="form-row">
-
-<input
-type="text"
-id="fullName"
-placeholder="Full Name"
-/>
-
-<input
-type="text"
-id="businessName"
-placeholder="Business Name"
-/>
-
-</div>
-
-
-<div class="form-row">
-
-<input
-type="text"
-id="businessType"
-placeholder="Business Type"
-/>
-
-<input
-type="text"
-id="helpType"
-placeholder="What do you need help with?"
-/>
-
-</div>
-
-
-<div class="form-row">
-
-<input
-type="email"
-id="email"
-placeholder="Email"
-/>
-
-<input
-type="text"
-id="phone"
-placeholder="Phone"
-/>
-
-</div>
-
-
-<textarea
-id="message"
-placeholder="Tell us more about your business or what you'd like to improve..."
-></textarea>
-
-
-<div class="demo-row">
-
-<label>
-
-<input type="checkbox" id="wantsDemo">
-
-Request Demo
-
-</label>
-
-</div>
-
-
-<button type="submit" class="submit-btn">
-
-Submit Inquiry
-
-</button>
-
-
-<div id="statusMessage" class="status-message"></div>
-
-</form>
-
-</section>
-
-
-
-<footer class="site-footer">
-
-<div class="footer-inner">
-
-<p>© 2026 Get Solutions AI</p>
-
-<a href="/admin" class="admin-link">Admin</a>
-
-</div>
-
-</footer>
-
-
-
-<button id="chatBubbleBtn" class="chat-bubble">
-
-AI
-
-</button>
+  <div id="cursorGlow"></div>
+
+  <header class="main-header">
+    <div class="logo">Get Solutions AI</div>
+
+    <nav class="main-nav">
+      <a href="#features">Features</a>
+      <a href="#assistant">AI Assistant</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">AI AUTOMATION • LEAD CAPTURE • BUSINESS GROWTH</p>
+
+      <h1>
+        Your <span id="typewriterText"></span>
+      </h1>
+
+      <p class="hero-sub">
+        We build AI assistants that help businesses respond faster, capture more
+        leads, improve follow-up, and grow their online presence without losing
+        opportunities.
+      </p>
+
+      <div class="hero-cta-row">
+        <a href="#assistant" class="hero-btn primary">Try the AI Assistant</a>
+        <a href="#contact" class="hero-btn secondary">Request Information</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-number" data-target="24">0</div>
+          <div class="stat-label">Hour Availability</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-number" data-target="100">0</div>
+          <div class="stat-label">Lead Response</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-number" data-target="10">0</div>
+          <div class="stat-label">Faster Conversion</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <div class="section-heading">
+      <p class="section-eyebrow">WHAT WE HELP WITH</p>
+      <h2>Smart automation for growing businesses</h2>
+      <p>
+        Your assistant can answer questions, capture leads, qualify visitors,
+        collect business details, and push strong prospects toward booking a demo.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card tilt-card">
+        <h3>AI Lead Capture</h3>
+        <p>
+          Your AI assistant talks with visitors, answers business-related questions,
+          and collects lead information automatically.
+        </p>
+      </div>
+
+      <div class="feature-card tilt-card">
+        <h3>Automated Follow Up</h3>
+        <p>
+          Automatically respond to inquiries and follow up with potential clients
+          so fewer opportunities slip through.
+        </p>
+      </div>
+
+      <div class="feature-card tilt-card">
+        <h3>Growth Automation</h3>
+        <p>
+          Use automation to improve response speed, increase inquiries, and build
+          stronger online presence for your business.
+        </p>
+      </div>
+
+      <div class="feature-card tilt-card">
+        <h3>Website AI Assistant</h3>
+        <p>
+          Add a business-focused AI assistant to your site to help qualify visitors
+          and move warm leads toward the next step.
+        </p>
+      </div>
+
+      <div class="feature-card tilt-card">
+        <h3>Demo-Ready Lead Detection</h3>
+        <p>
+          Strong leads can be identified automatically so you know who to prioritize
+          first for follow-up.
+        </p>
+      </div>
+
+      <div class="feature-card tilt-card">
+        <h3>Lead Intelligence Dashboard</h3>
+        <p>
+          Review saved leads, heat tags, summaries, follow-up guidance, and transcripts
+          inside your private admin dashboard.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-strip">
+    <div class="strip-card">
+      <span>Lead Capture</span>
+    </div>
+    <div class="strip-card">
+      <span>AI Conversations</span>
+    </div>
+    <div class="strip-card">
+      <span>Follow-Up Automation</span>
+    </div>
+    <div class="strip-card">
+      <span>Online Growth Support</span>
+    </div>
+  </section>
+
+  <section id="assistant" class="assistant-panel">
+    <div class="section-heading assistant-heading">
+      <p class="section-eyebrow">LIVE DEMO</p>
+      <h2>Try the AI Assistant</h2>
+      <p class="assistant-description">
+        Ask questions about automation, AI assistants, lead generation, follow-up,
+        or how businesses can grow with AI systems.
+      </p>
+    </div>
+
+    <div class="assistant-container">
+      <div id="chatWindow" class="chat-window">
+        <div class="message bot">
+          <div class="message-avatar">AI</div>
+          <div class="message-bubble" id="welcomeMessage">
+            Loading assistant...
+          </div>
+        </div>
+      </div>
+
+      <div id="quickActions" class="quick-actions"></div>
+
+      <form id="chatInputForm" class="chat-input-form" novalidate>
+        <input
+          id="chatInput"
+          type="text"
+          placeholder="Ask the AI assistant..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="benefits-section">
+    <div class="section-heading">
+      <p class="section-eyebrow">WHY IT MATTERS</p>
+      <h2>Built to help businesses move faster</h2>
+      <p>
+        This system is designed to reduce missed opportunities, improve response
+        speed, and help turn more visitors into real conversations.
+      </p>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <h3>Faster Responses</h3>
+        <p>
+          Visitors get answers right away instead of waiting hours or days for a reply.
+        </p>
+      </div>
+
+      <div class="benefit-card">
+        <h3>Cleaner Lead Collection</h3>
+        <p>
+          Collect names, emails, business details, and service needs in one flow.
+        </p>
+      </div>
+
+      <div class="benefit-card">
+        <h3>Better Follow-Up</h3>
+        <p>
+          Warm leads can be identified faster so you know who to contact first.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact-section">
+    <div class="section-heading contact-heading">
+      <p class="section-eyebrow">GET STARTED</p>
+      <h2>Request Information</h2>
+      <p class="contact-description">
+        Fill out the form below and our system will follow up with you.
+      </p>
+    </div>
+
+    <form id="leadForm" class="lead-form" novalidate>
+      <div class="form-row">
+        <input type="text" id="fullName" placeholder="Full Name" />
+        <input type="text" id="businessName" placeholder="Business Name" />
+      </div>
+
+      <div class="form-row">
+        <input type="text" id="businessType" placeholder="Business Type" />
+        <input type="text" id="helpType" placeholder="What do you need help with?" />
+      </div>
+
+      <div class="form-row">
+        <input type="text" id="email" placeholder="Email" inputmode="email" />
+        <input type="text" id="phone" placeholder="Phone" inputmode="tel" />
+      </div>
+
+      <textarea
+        id="message"
+        placeholder="Tell us more about your business or what you'd like to improve..."
+      ></textarea>
+
+      <div class="demo-row">
+        <label>
+          <input type="checkbox" id="wantsDemo" />
+          Request Demo
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn">Submit Inquiry</button>
+      <div id="statusMessage" class="status-message"></div>
+    </form>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© 2026 Get Solutions AI</p>
+      <a href="/admin" class="admin-link">Admin</a>
+    </div>
+  </footer>
+
+  <button id="chatBubbleBtn" class="chat-bubble">AI</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
