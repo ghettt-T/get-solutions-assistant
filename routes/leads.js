@@ -13,7 +13,7 @@ const {
 
 const {
   generateLeadIntelligence
-} = require("../services/leadintelligenceService");
+} = require("../services/leadIntelligenceService");
 
 const {
   saveLead
