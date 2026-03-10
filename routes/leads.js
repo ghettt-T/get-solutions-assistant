@@ -39,38 +39,40 @@ router.post("/submit-lead", async (req, res) => {
       hotLead: intelligence.hotLead
     };
 
-    const savedLead = saveLead(enrichedLeadData);
+    const savedLead = await saveLead(enrichedLeadData);
 
-    await sendOwnerLeadEmail({
+    sendOwnerLeadEmail({
       ...enrichedLeadData,
       leadId: savedLead.id,
       transcript: savedLead.conversation?.transcript || []
+    }).catch((error) => {
+      console.error("OWNER EMAIL ERROR:");
+      console.error(error.message);
     });
 
-    await sendVisitorAutoReply({
+    sendVisitorAutoReply({
       ...enrichedLeadData,
       leadId: savedLead.id
+    }).catch((error) => {
+      console.error("VISITOR EMAIL ERROR:");
+      console.error(error.message);
     });
 
-    try {
-      await sendLeadSmsAlert({
-        ...enrichedLeadData,
-        leadId: savedLead.id
-      });
-    } catch (smsError) {
+    sendLeadSmsAlert({
+      ...enrichedLeadData,
+      leadId: savedLead.id
+    }).catch((error) => {
       console.error("OWNER SMS ERROR:");
-      console.error(smsError.message);
-    }
+      console.error(error.message);
+    });
 
-    try {
-      await sendLeadAutoReplySms({
-        ...enrichedLeadData,
-        leadId: savedLead.id
-      });
-    } catch (smsError) {
+    sendLeadAutoReplySms({
+      ...enrichedLeadData,
+      leadId: savedLead.id
+    }).catch((error) => {
       console.error("VISITOR SMS ERROR:");
-      console.error(smsError.message);
-    }
+      console.error(error.message);
+    });
 
     return res.json({
       success: true,
@@ -83,18 +85,6 @@ router.post("/submit-lead", async (req, res) => {
         heatTag: savedLead.heatTag,
         tags: savedLead.tags,
         createdAt: savedLead.createdAt
-      },
-      intelligence: {
-        leadScore: intelligence.leadScore,
-        intentLevel: intelligence.intentLevel,
-        heatTag: intelligence.heatTag,
-        tags: intelligence.tags,
-        summary: intelligence.summary,
-        conversationSummary: intelligence.conversationSummary,
-        recommendedNextStep: intelligence.recommendedNextStep,
-        suggestedFollowUpMessage: intelligence.suggestedFollowUpMessage,
-        demoReady: intelligence.demoReady,
-        hotLead: intelligence.hotLead
       }
     });
   } catch (error) {
