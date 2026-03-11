@@ -15,7 +15,11 @@ const {
   getLeadsNeedingFollowUp,
   markFollowUpSent
 } = require("./services/leadStoreService");
-const { sendAutoFollowUpEmail } = require("./services/emailService");
+const {
+  sendAutoFollowUpEmail,
+  getEmailHealthStatus,
+  verifyEmailTransport
+} = require("./services/emailService");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -206,6 +210,34 @@ app.get("/api/admin-auth-check", (req, res) => {
   }
 
   return res.json({ success: true });
+});
+
+app.get("/api/email-health", requireAdminAuth, async (req, res) => {
+  try {
+    const shouldVerify = String(req.query.verify || "").toLowerCase() === "true";
+    const status = getEmailHealthStatus();
+
+    let verification = null;
+    if (shouldVerify && status.configuredBase) {
+      verification = await verifyEmailTransport();
+    }
+
+    return res.json({
+      success: true,
+      email: {
+        ...status,
+        verification
+      }
+    });
+  } catch (error) {
+    console.error("EMAIL HEALTH ERROR:");
+    console.error(error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check email health."
+    });
+  }
 });
 
 app.get("/api/leads", requireAdminAuth, (req, res) => {

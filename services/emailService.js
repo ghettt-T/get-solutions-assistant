@@ -1,4 +1,96 @@
-zzzz
+const nodemailer = require("nodemailer");
+
+const smtpPort = Number(process.env.SMTP_PORT || 587);
+const smtpSecure =
+  String(process.env.SMTP_SECURE || "").toLowerCase() === "true"
+    ? true
+    : smtpPort === 465;
+
+let warnedMissingEmailConfig = false;
+
+const BASE_EMAIL_ENV_KEYS = [
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USER",
+  "SMTP_PASS"
+];
+
+function getMissingEmailEnvKeys(additionalRequiredKeys = []) {
+  const required = [...BASE_EMAIL_ENV_KEYS, ...additionalRequiredKeys];
+
+  return required.filter((key) => !process.env[key]);
+}
+
+function hasEmailDeliveryConfig(additionalRequiredKeys = []) {
+  return getMissingEmailEnvKeys(additionalRequiredKeys).length === 0;
+}
+
+function logEmailConfigWarningOnce(additionalRequiredKeys = []) {
+  if (warnedMissingEmailConfig) return;
+
+  const missing = getMissingEmailEnvKeys(additionalRequiredKeys);
+  if (missing.length === 0) return;
+
+  warnedMissingEmailConfig = true;
+  console.warn(
+    `[EMAIL] Missing required env vars for email delivery: ${missing.join(", ")}. Email sends will be skipped until configured.`
+  );
+}
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: smtpPort,
+  secure: smtpSecure,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
+
+function getEmailHealthStatus() {
+  const missingBaseEnvKeys = getMissingEmailEnvKeys();
+  const missingOwnerEnvKeys = getMissingEmailEnvKeys(["OWNER_EMAIL"]);
+
+  return {
+    configuredBase: missingBaseEnvKeys.length === 0,
+    configuredOwnerEmail: missingOwnerEnvKeys.length === 0,
+    missingBaseEnvKeys,
+    missingOwnerEnvKeys,
+    smtpHost: process.env.SMTP_HOST || "",
+    smtpPort,
+    smtpSecure
+  };
+}
+
+function verifyEmailTransport(timeoutMs = 5000) {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve({ ok: false, reason: "timeout" });
+    }, timeoutMs);
+
+    transporter.verify((error, success) => {
+      clearTimeout(timeout);
+
+      if (error) {
+        resolve({ ok: false, reason: error.message });
+        return;
+      }
+
+      resolve({ ok: Boolean(success) });
+    });
+  });
+}
+
+async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
+  if (!hasEmailDeliveryConfig(additionalRequiredKeys)) {
+    logEmailConfigWarningOnce(additionalRequiredKeys);
+    return { skipped: true, reason: "missing_email_env" };
+  }
+
+  const result = await transporter.sendMail(mailOptions);
+  console.log(`[EMAIL] ${label} sent: ${result.messageId}`);
+  return result;
+}
 
 function escapeHtml(value = "") {
   return String(value)
@@ -272,7 +364,7 @@ ${message || ""}
     html: buildOwnerEmailHtml(leadData)
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions, "Owner lead alert", ["OWNER_EMAIL"]);
 }
 
 async function sendVisitorAutoReply(leadData) {
@@ -300,10 +392,49 @@ ${process.env.OWNER_NAME || "Get Solutions AI"}
     html: buildVisitorEmailHtml(leadData)
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions, "Visitor auto-reply");
+}
+
+async function sendAutoFollowUpEmail(leadData) {
+  const { fullName, email, businessType } = leadData;
+
+  if (!email) return null;
+
+  const mailOptions = {
+    from: `"${process.env.OWNER_NAME || "Get Solutions AI"}" <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: "Checking in on your inquiry",
+    text: `
+Hi ${fullName || "there"},
+
+Just checking in on your recent inquiry with Get Solutions AI.
+
+We can help ${businessType || "your business"} with AI automation, lead capture, and follow-up systems that convert more website visitors into conversations.
+
+Reply to this email if you'd like next steps or a quick demo.
+
+Best,
+${process.env.OWNER_NAME || "Get Solutions AI"}
+    `.trim(),
+    html: `
+      <p>Hi ${escapeHtml(fullName || "there")},</p>
+      <p>Just checking in on your recent inquiry with <strong>Get Solutions AI</strong>.</p>
+      <p>
+        We can help ${escapeHtml(businessType || "your business")} with AI automation,
+        lead capture, and follow-up systems that convert more website visitors into conversations.
+      </p>
+      <p>Reply to this email if you'd like next steps or a quick demo.</p>
+      <p>Best,<br>${escapeHtml(process.env.OWNER_NAME || "Get Solutions AI")}</p>
+    `
+  };
+
+  return sendEmail(mailOptions, "Follow-up email");
 }
 
 module.exports = {
   sendOwnerLeadEmail,
-  sendVisitorAutoReply
+  sendVisitorAutoReply,
+  sendAutoFollowUpEmail,
+  getEmailHealthStatus,
+  verifyEmailTransport
 };

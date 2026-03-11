@@ -45,6 +45,10 @@ router.post("/submit-lead", async (req, res) => {
       ...enrichedLeadData,
       leadId: savedLead.id,
       transcript: savedLead.conversation?.transcript || []
+    }).then((result) => {
+      if (result?.skipped) {
+        console.warn(`OWNER EMAIL SKIPPED for ${savedLead.id}: ${result.reason}`);
+      }
     }).catch((error) => {
       console.error("OWNER EMAIL ERROR:");
       console.error(error.message);
@@ -53,6 +57,10 @@ router.post("/submit-lead", async (req, res) => {
     sendVisitorAutoReply({
       ...enrichedLeadData,
       leadId: savedLead.id
+    }).then((result) => {
+      if (result?.skipped) {
+        console.warn(`VISITOR EMAIL SKIPPED for ${savedLead.id}: ${result.reason}`);
+      }
     }).catch((error) => {
       console.error("VISITOR EMAIL ERROR:");
       console.error(error.message);
