@@ -4,6 +4,16 @@ const OpenAI = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+const openAiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 12000);
+
+function withTimeout(promise, timeoutMs) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`OpenAI request timed out after ${timeoutMs}ms`)), timeoutMs);
+    })
+  ]);
+}
 
 function cleanTranscript(transcript) {
   if (!Array.isArray(transcript)) return [];
@@ -146,6 +156,11 @@ function fallbackLeadIntelligence(leadData) {
 }
 
 async function generateLeadIntelligence(leadData) {
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn("LEAD INTELLIGENCE: OPENAI_API_KEY missing, using fallback scoring.");
+    return fallbackLeadIntelligence(leadData);
+  }
+
   const transcriptText = buildTranscriptText(leadData.transcript);
 
   const prompt = `
@@ -215,21 +230,24 @@ Return JSON only in exactly this format:
 `;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a strict sales qualification assistant. Return only valid JSON. No markdown. No explanation."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    });
+    const completion = await withTimeout(
+      openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a strict sales qualification assistant. Return only valid JSON. No markdown. No explanation."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      }),
+      openAiTimeoutMs
+    );
 
     const content = completion.choices[0].message.content.trim();
     const parsed = JSON.parse(content);
