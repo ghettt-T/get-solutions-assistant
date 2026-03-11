@@ -5,6 +5,7 @@ const smtpSecure =
   String(process.env.SMTP_SECURE || "").toLowerCase() === "true"
     ? true
     : smtpPort === 465;
+const smtpFamily = Number(process.env.SMTP_FAMILY || 4);
 
 let warnedMissingEmailConfig = false;
 
@@ -41,6 +42,8 @@ const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: smtpPort,
   secure: smtpSecure,
+  family: smtpFamily,
+  connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT || 10000),
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
@@ -58,7 +61,8 @@ function getEmailHealthStatus() {
     missingOwnerEnvKeys,
     smtpHost: process.env.SMTP_HOST || "",
     smtpPort,
-    smtpSecure
+    smtpSecure,
+    smtpFamily
   };
 }
 
