@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 const smtpPort = Number(process.env.SMTP_PORT || 587);
 const smtpSecure =
@@ -38,17 +39,29 @@ function logEmailConfigWarningOnce(additionalRequiredKeys = []) {
   );
 }
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: smtpPort,
-  secure: smtpSecure,
-  family: smtpFamily,
-  connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT || 10000),
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
+function createTransport(hostOverride) {
+  const baseHost = process.env.SMTP_HOST;
+  const activeHost = hostOverride || baseHost;
+
+  return nodemailer.createTransport({
+    host: activeHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    family: smtpFamily,
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT || 10000),
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
+    },
+    tls: hostOverride
+      ? {
+          servername: baseHost
+        }
+      : undefined
+  });
+}
+
+const transporter = createTransport();
 
 function getEmailHealthStatus() {
   const missingBaseEnvKeys = getMissingEmailEnvKeys();
@@ -91,9 +104,36 @@ async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
     return { skipped: true, reason: "missing_email_env" };
   }
 
-  const result = await transporter.sendMail(mailOptions);
-  console.log(`[EMAIL] ${label} sent: ${result.messageId}`);
-  return result;
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log(`[EMAIL] ${label} sent: ${result.messageId}`);
+    return result;
+  } catch (error) {
+    const retryableCodes = ["ENETUNREACH", "ETIMEDOUT", "ESOCKET"];
+    const shouldRetry = retryableCodes.includes(error?.code);
+
+    if (!shouldRetry || !process.env.SMTP_HOST) {
+      throw error;
+    }
+
+    try {
+      const ipv4List = await dns.promises.resolve4(process.env.SMTP_HOST);
+      const ipv4 = ipv4List[0];
+
+      if (!ipv4) throw error;
+
+      console.warn(
+        `[EMAIL] ${label} retrying over IPv4 ${ipv4} after ${error.code || "network"} error.`
+      );
+
+      const ipv4Transporter = createTransport(ipv4);
+      const result = await ipv4Transporter.sendMail(mailOptions);
+      console.log(`[EMAIL] ${label} sent after IPv4 retry: ${result.messageId}`);
+      return result;
+    } catch (retryError) {
+      throw retryError;
+    }
+  }
 }
 
 function escapeHtml(value = "") {
