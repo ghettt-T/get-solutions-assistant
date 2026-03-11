@@ -7,6 +7,8 @@ const smtpSecure =
     ? true
     : smtpPort === 465;
 const smtpFamily = Number(process.env.SMTP_FAMILY || 4);
+const resendApiKey = process.env.RESEND_API_KEY || "";
+const resendFrom = process.env.RESEND_FROM || process.env.SMTP_USER || "";
 
 let warnedMissingEmailConfig = false;
 
@@ -25,6 +27,10 @@ function getMissingEmailEnvKeys(additionalRequiredKeys = []) {
 
 function hasEmailDeliveryConfig(additionalRequiredKeys = []) {
   return getMissingEmailEnvKeys(additionalRequiredKeys).length === 0;
+}
+
+function hasResendConfig() {
+  return Boolean(resendApiKey && resendFrom);
 }
 
 function logEmailConfigWarningOnce(additionalRequiredKeys = []) {
@@ -70,6 +76,7 @@ function getEmailHealthStatus() {
   return {
     configuredBase: missingBaseEnvKeys.length === 0,
     configuredOwnerEmail: missingOwnerEnvKeys.length === 0,
+    resendConfigured: hasResendConfig(),
     missingBaseEnvKeys,
     missingOwnerEnvKeys,
     smtpHost: process.env.SMTP_HOST || "",
@@ -96,6 +103,55 @@ function verifyEmailTransport(timeoutMs = 5000) {
       resolve({ ok: Boolean(success) });
     });
   });
+}
+
+async function sendViaResend(mailOptions, label) {
+  if (!hasResendConfig()) return null;
+
+  const recipients = Array.isArray(mailOptions.to)
+    ? mailOptions.to.filter(Boolean)
+    : [mailOptions.to].filter(Boolean);
+
+  if (recipients.length === 0) return null;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: resendFrom,
+      to: recipients,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+      text: mailOptions.text,
+      reply_to: process.env.SMTP_USER || undefined
+    })
+  });
+
+  const payloadText = await response.text();
+  let payload = {};
+
+  try {
+    payload = payloadText ? JSON.parse(payloadText) : {};
+  } catch (error) {
+    payload = {};
+  }
+
+  if (!response.ok) {
+    const reason = payload?.message || payloadText || `HTTP ${response.status}`;
+    throw new Error(`Resend API error: ${reason}`);
+  }
+
+  console.log(`[EMAIL] ${label} sent via Resend: ${payload.id || "ok"}`);
+
+  return {
+    messageId: payload.id || "resend",
+    accepted: recipients,
+    rejected: [],
+    pending: []
+  };
 }
 
 async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
@@ -126,6 +182,8 @@ async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
     const shouldRetry = retryableCodes.includes(error?.code);
 
     if (!shouldRetry || !process.env.SMTP_HOST) {
+      const resendResult = await sendViaResend(mailOptions, label);
+      if (resendResult) return resendResult;
       throw error;
     }
 
@@ -163,6 +221,8 @@ async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
 
       return result;
     } catch (retryError) {
+      const resendResult = await sendViaResend(mailOptions, label);
+      if (resendResult) return resendResult;
       throw retryError;
     }
   }
