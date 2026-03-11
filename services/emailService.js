@@ -107,6 +107,19 @@ async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
   try {
     const result = await transporter.sendMail(mailOptions);
     console.log(`[EMAIL] ${label} sent: ${result.messageId}`);
+
+    if (Array.isArray(result.accepted) && result.accepted.length > 0) {
+      console.log(`[EMAIL] ${label} accepted recipient(s): ${result.accepted.join(", ")}`);
+    }
+
+    if (Array.isArray(result.rejected) && result.rejected.length > 0) {
+      console.warn(`[EMAIL] ${label} rejected recipient(s): ${result.rejected.join(", ")}`);
+    }
+
+    if (Array.isArray(result.pending) && result.pending.length > 0) {
+      console.warn(`[EMAIL] ${label} pending recipient(s): ${result.pending.join(", ")}`);
+    }
+
     return result;
   } catch (error) {
     const retryableCodes = ["ENETUNREACH", "ETIMEDOUT", "ESOCKET"];
@@ -129,6 +142,25 @@ async function sendEmail(mailOptions, label, additionalRequiredKeys = []) {
       const ipv4Transporter = createTransport(ipv4);
       const result = await ipv4Transporter.sendMail(mailOptions);
       console.log(`[EMAIL] ${label} sent after IPv4 retry: ${result.messageId}`);
+
+      if (Array.isArray(result.accepted) && result.accepted.length > 0) {
+        console.log(
+          `[EMAIL] ${label} accepted recipient(s) after retry: ${result.accepted.join(", ")}`
+        );
+      }
+
+      if (Array.isArray(result.rejected) && result.rejected.length > 0) {
+        console.warn(
+          `[EMAIL] ${label} rejected recipient(s) after retry: ${result.rejected.join(", ")}`
+        );
+      }
+
+      if (Array.isArray(result.pending) && result.pending.length > 0) {
+        console.warn(
+          `[EMAIL] ${label} pending recipient(s) after retry: ${result.pending.join(", ")}`
+        );
+      }
+
       return result;
     } catch (retryError) {
       throw retryError;
