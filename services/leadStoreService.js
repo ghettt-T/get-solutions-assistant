@@ -2,7 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const DATA_DIR = path.join(__dirname, "..", "data");
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, "..", "data");
 const LEADS_FILE = path.join(DATA_DIR, "leads.json");
 
 function ensureDataFile() {
@@ -163,6 +165,7 @@ function saveLead(leadData) {
 
   store.leads.unshift(leadRecord);
   writeLeadStore(store);
+  console.log(`[LEADS] Saved ${leadRecord.id} to ${LEADS_FILE}`);
 
   return leadRecord;
 }

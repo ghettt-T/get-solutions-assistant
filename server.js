@@ -15,6 +15,7 @@ const {
   getLeadsNeedingFollowUp,
   markFollowUpSent
 } = require("./services/leadStoreService");
+const fs = require("fs");
 const {
   sendAutoFollowUpEmail,
   getEmailHealthStatus,
@@ -236,6 +237,35 @@ app.get("/api/email-health", requireAdminAuth, async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to check email health."
+    });
+  }
+});
+
+app.get("/api/storage-health", requireAdminAuth, (req, res) => {
+  try {
+    const dataDir = process.env.DATA_DIR
+      ? path.resolve(process.env.DATA_DIR)
+      : path.join(__dirname, "data");
+    const leadsFile = path.join(dataDir, "leads.json");
+    const fileExists = fs.existsSync(leadsFile);
+    const fileSize = fileExists ? fs.statSync(leadsFile).size : 0;
+
+    return res.json({
+      success: true,
+      storage: {
+        dataDir,
+        leadsFile,
+        fileExists,
+        fileSize
+      }
+    });
+  } catch (error) {
+    console.error("STORAGE HEALTH ERROR:");
+    console.error(error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check storage health."
     });
   }
 });
